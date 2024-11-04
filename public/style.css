@@ -55,7 +55,7 @@ li {
 }
 
 li button {
-    background-color: #dc3545;
+    background-color: #38bbdc;
     color: white;
     border: none;
     padding: 5px 10px;
@@ -63,5 +63,17 @@ li button {
 }
 
 li button:hover {
+    background-color: #1fa6ab;
+}
+
+li .delete-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+li .delete-button:hover {
     background-color: #c82333;
 }
