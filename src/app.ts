@@ -13,7 +13,7 @@ const habitInput = document.getElementById('habit-input') as HTMLInputElement;
 const frequencyInput = document.getElementById('frequency-input') as HTMLInputElement;
 const habitList = document.getElementById('habit-list') as HTMLUListElement;
 
-habits.forEach(habit => addHabit(habit));
+habits.forEach(habit => addHabit(habit)); // AFTER the DOM elements so it knows what to reference
 
 habitForm.addEventListener('submit', (event) => {
     event.preventDefault(); // prevent page refresh on form submission
