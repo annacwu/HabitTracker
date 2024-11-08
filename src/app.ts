@@ -5,11 +5,15 @@ interface Habit {
     completionDates: string[];
 }
 
+const habits: Habit[] = loadFromStorage(); // loads as json data?
+
 // get references to the DOM elements
 const habitForm = document.getElementById('habit-form') as HTMLFormElement;
 const habitInput = document.getElementById('habit-input') as HTMLInputElement;
 const frequencyInput = document.getElementById('frequency-input') as HTMLInputElement;
 const habitList = document.getElementById('habit-list') as HTMLUListElement;
+
+habits.forEach(habit => addHabit(habit));
 
 habitForm.addEventListener('submit', (event) => {
     event.preventDefault(); // prevent page refresh on form submission
@@ -17,7 +21,11 @@ habitForm.addEventListener('submit', (event) => {
     const habitFrequency = frequencyInput.value.trim();
 
     if (habitName.length > 0 && habitFrequency.length > 0) {
-        addHabit(habitName, habitFrequency);
+        const newHabit: Habit = {name: habitName, frequency: habitFrequency, completions: 0, completionDates: []};
+        habits.push(newHabit);
+        addHabit(newHabit);
+        storeLocally(habits);
+
         habitInput.value = '';
         frequencyInput.value = '';
     } else {
@@ -25,8 +33,7 @@ habitForm.addEventListener('submit', (event) => {
     }
 });
 
-function addHabit(name: string, frequency: string) {
-    const newHabit: Habit = {name, frequency, completions: 0, completionDates: []};
+function addHabit(newHabit: Habit) {
     const li = document.createElement('li'); // makes a new list element in the html
     li.textContent = `${newHabit.name} (${newHabit.frequency}) - Completed: ${newHabit.completions}`;
 
@@ -56,4 +63,14 @@ function markAsCompleted(habit: Habit) {
     } else {
         alert(`You've already completed ${habit.name} today.`);
     }
+}
+
+// save habits to local storage
+function storeLocally(habits: Habit[]) {
+    localStorage.setItem('habits', JSON.stringify(habits));
+}
+
+function loadFromStorage(): Habit[] {
+    const storedHabits = localStorage.getItem('habits');
+    return storedHabits ? JSON.parse(storedHabits) : [];
 }
