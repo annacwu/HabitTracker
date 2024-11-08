@@ -47,6 +47,15 @@ function addHabit(newHabit: Habit) {
     deleteButton.textContent = 'Delete';
     deleteButton.addEventListener('click', () => {
         li.remove();
+        
+        // find habit in array
+        const index = habits.indexOf(newHabit);
+        if (index > -1) {
+            habits.splice(index, 1); // splice removes or adds elements based on parameters
+        }
+
+        // update local storage
+        storeLocally(habits);
     });
 
     li.appendChild(completeButton);
@@ -59,6 +68,7 @@ function markAsCompleted(habit: Habit) {
     if (!habit.completionDates.includes(today)) {
         habit.completionDates.push(today);
         habit.completions++;
+        storeLocally(habits);
         alert(`Habit ${habit.name} completed.`);
     } else {
         alert(`You've already completed ${habit.name} today.`);
