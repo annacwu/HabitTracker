@@ -10,7 +10,24 @@
     <h1>Habit Tracker</h1>
     <form id="habit-form">
         <input type="text" id="habit-input" placeholder="Enter a habit" required />
-        <input type="text" id="frequency-input" placeholder="Frequency (e.g., Daily, Twice a week)" required />
+
+        <label for="frequency-input">Frequency:</label>
+        <select id="frequency-input">
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Twice a Week">Twice a Week</option>
+            <option value="Custom">Custom</option>
+        </select>
+        
+        <div id="custom-frequency-input" style="display: none;">
+            <label for="custom-days">Select Days:</label>
+            <input type="checkbox" id="monday" value="Monday" /> Monday
+            <input type="checkbox" id="tuesday" value="Tuesday" /> Tuesday
+            <input type="checkbox" id="wednesday" value="Wednesday" /> Wednesday
+            <input type="checkbox" id="thursday" value="Thursday" /> Thursday
+            <input type="checkbox" id="friday" value="Friday" /> Friday
+        </div>
+
         <button type="submit">Add Habit</button>
     </form>
     <ul id="habit-list"></ul>
