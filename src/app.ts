@@ -1,15 +1,15 @@
+type Frequency = "Daily" | "Weekly" | "Twice a Week" | "Custom"; // literal type best here? unknown
+
+interface CustomFrequency {
+    days: string[]; 
+}
+
 interface Habit {
     name: string;
-    frequency: Frequency; // FIXME: make this into its own enum later
+    frequency: Frequency | CustomFrequency; // this ended up making some things weird later on, maybe better ways to approach this
     completions: number;
     completionDates: string[];
 }
-
-type Frequency = "Daily" | "Weekly" | "Twice a Week" | "Custom"
-
-interface CustomFrequency {
-    days: string[]; // e.g., ['Monday', 'Wednesday']
-  }
 
 const habits: Habit[] = loadFromStorage(); // loads as json data?
 
@@ -33,24 +33,69 @@ frequencyInput.addEventListener('change', () => {
 habitForm.addEventListener('submit', (event) => {
     event.preventDefault(); // prevent page refresh on form submission
     const habitName = habitInput.value.trim(); // trim removes leading/trailing whitespace
-    const habitFrequency = frequencyInput.value as Frequency;
+    const selectedFrequency = frequencyInput.value;
 
-    if (habitName.length > 0 && habitFrequency.length > 0) {
-        const newHabit: Habit = {name: habitName, frequency: habitFrequency, completions: 0, completionDates: []};
-        habits.push(newHabit);
-        addHabit(newHabit);
-        storeLocally(habits);
-
-        habitInput.value = '';
-        frequencyInput.value = '';
-    } else {
-        alert('Please fill out all fields.');
+    if(!habitName) {
+        alert('Please enter a habit name.');
+        return;
     }
+
+    let habit: Habit;
+
+    if(selectedFrequency === "Custom") {
+        const selectedDays = Array.from(document.querySelectorAll('#custom-frequency-input input:checked'))
+            .map((checkbox) => (checkbox as HTMLInputElement).value); // Get selected days
+        if (selectedDays.length === 0) {
+            alert('Please select at least one day for the custom frequency.');
+            return;
+        }
+
+        habit = {
+            name: habitName,
+            frequency: {days: selectedDays}, // sets as CustomFrequency
+            completions: 0,
+            completionDates: [],
+        }
+    } else {
+        habit = {
+            name: habitName,
+            frequency: selectedFrequency as Frequency,
+            completions: 0,
+            completionDates: [],
+        }
+    }
+
+    habits.push(habit);
+    addHabit(habit);
+    storeLocally(habits);
+    habitForm.reset();
+    customFrequencyInput.style.display = 'none';
+    // if (habitName.length > 0) {
+    //     const newHabit: Habit = {name: habitName, frequency: habitFrequency, completions: 0, completionDates: []};
+    //     habits.push(newHabit);
+    //     addHabit(newHabit);
+    //     storeLocally(habits);
+
+    //     habitInput.value = '';
+    //     frequencyInput.value = 'Daily';
+    //     customFrequencyInput.style.display = 'none';
+    // } else {
+    //     alert('Please fill out all fields.');
+    // }
 });
 
 function addHabit(newHabit: Habit) {
     const li = document.createElement('li'); // makes a new list element in the html
-    li.textContent = `${newHabit.name} (${newHabit.frequency}) - Completed: ${newHabit.completions}`;
+
+    let frequencyText = "";
+
+    if (isCustomFrequency(newHabit)) {
+        frequencyText = `Custom (${newHabit.frequency.days.join(", ")})`;
+    } else {
+        frequencyText = newHabit.frequency as Frequency;
+    }
+
+    li.textContent = `${newHabit.name} (${frequencyText}) - Completed: ${newHabit.completions}`;
 
     // mark as completed button
     const completeButton = document.createElement('button');
@@ -78,7 +123,22 @@ function addHabit(newHabit: Habit) {
     habitList.appendChild(li);
 }
 
+// add a typeguard to make sure if statement in markascompleted works
+function isCustomFrequency(habit: Habit): habit is Habit & { frequency: CustomFrequency } {
+    return typeof habit.frequency === "object" && "days" in habit.frequency;
+}
+
 function markAsCompleted(habit: Habit) {
+    const todayDate = new Date();
+    const todayDay = todayDate.toLocaleString('en-US', { weekday: 'long' });
+
+    if (isCustomFrequency(habit)) {
+        if (!habit.frequency.days.includes(todayDay)) {
+            alert(`This habit cannot be completed today (${todayDay}). Allowed days: ${habit.frequency.days.join(', ')}`);
+            return;
+        }
+    }
+    
     const today = new Date().toISOString().split('T')[0];
     if (!habit.completionDates.includes(today)) {
         habit.completionDates.push(today);
