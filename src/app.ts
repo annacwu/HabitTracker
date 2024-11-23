@@ -74,6 +74,7 @@ habitForm.addEventListener('submit', (event) => {
 
 function addHabit(newHabit: Habit) {
     const li = document.createElement('li'); // makes a new list element in the html
+    li.setAttribute('data-habit-name', newHabit.name); // Add data-habit-name to uniquely identify the habit
 
     const habitText = document.createElement('span');
     let frequencyText = "";
@@ -83,8 +84,11 @@ function addHabit(newHabit: Habit) {
     } else {
         frequencyText = newHabit.frequency as Frequency;
     }
+    habitText.textContent = `${newHabit.name} (${frequencyText})`;
 
-    habitText.textContent = `${newHabit.name} (${frequencyText}) - Completed: ${newHabit.completions}`;
+    const completionText = document.createElement('span');
+    completionText.className = 'completion-text';
+    completionText.textContent = `Completed: ${newHabit.completions}`;
 
     // mark as completed button
     const completeButton = document.createElement('button');
@@ -106,8 +110,9 @@ function addHabit(newHabit: Habit) {
         // update local storage
         storeLocally(habits);
     });
-
+    
     li.appendChild(habitText);
+    li.appendChild(completionText);
     li.appendChild(completeButton);
     li.appendChild(deleteButton);
     habitList.appendChild(li);
@@ -129,11 +134,21 @@ function markAsCompleted(habit: Habit) {
         }
     }
     
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0]; // iso format is YYYY-MM-DDTHH:mm:ss.sssZ
     if (!habit.completionDates.includes(today)) {
         habit.completionDates.push(today);
         habit.completions++;
         storeLocally(habits);
+
+        const habitItem = document.querySelector(`li[data-habit-name="${habit.name}"]`);
+        if (habitItem) {
+            // Find the completion text span and update its content
+            const completionText = habitItem.querySelector('.completion-text');
+            if (completionText) {
+                completionText.textContent = `Completed: ${habit.completions}`;
+            }
+        }
+
         alert(`Habit ${habit.name} completed.`);
     } else {
         alert(`You've already completed ${habit.name} today.`);
