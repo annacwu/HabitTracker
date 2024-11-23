@@ -46,6 +46,7 @@ button:hover {
 ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 li {
@@ -59,12 +60,21 @@ li {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+li span {
+    flex-grow: 1;
+    margin-right: 10px;
+    word-break: break-word;
+}
+
 li button {
     background-color: #38bbdc;
     color: white;
     border: none;
     padding: 5px 10px;
     cursor: pointer;
+    border-radius: 4px;
+    margin-left: 5px;
+    white-space: nowrap; /* Prevents the text in buttons from wrapping */
 }
 
 li button:hover {

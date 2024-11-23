@@ -70,23 +70,12 @@ habitForm.addEventListener('submit', (event) => {
     storeLocally(habits);
     habitForm.reset();
     customFrequencyInput.style.display = 'none';
-    // if (habitName.length > 0) {
-    //     const newHabit: Habit = {name: habitName, frequency: habitFrequency, completions: 0, completionDates: []};
-    //     habits.push(newHabit);
-    //     addHabit(newHabit);
-    //     storeLocally(habits);
-
-    //     habitInput.value = '';
-    //     frequencyInput.value = 'Daily';
-    //     customFrequencyInput.style.display = 'none';
-    // } else {
-    //     alert('Please fill out all fields.');
-    // }
 });
 
 function addHabit(newHabit: Habit) {
     const li = document.createElement('li'); // makes a new list element in the html
 
+    const habitText = document.createElement('span');
     let frequencyText = "";
 
     if (isCustomFrequency(newHabit)) {
@@ -95,7 +84,7 @@ function addHabit(newHabit: Habit) {
         frequencyText = newHabit.frequency as Frequency;
     }
 
-    li.textContent = `${newHabit.name} (${frequencyText}) - Completed: ${newHabit.completions}`;
+    habitText.textContent = `${newHabit.name} (${frequencyText}) - Completed: ${newHabit.completions}`;
 
     // mark as completed button
     const completeButton = document.createElement('button');
@@ -118,6 +107,7 @@ function addHabit(newHabit: Habit) {
         storeLocally(habits);
     });
 
+    li.appendChild(habitText);
     li.appendChild(completeButton);
     li.appendChild(deleteButton);
     habitList.appendChild(li);
