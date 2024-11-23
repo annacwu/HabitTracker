@@ -3,6 +3,7 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 20px;
+    align-items: center;
 }
 
 h1 {
@@ -10,10 +11,12 @@ h1 {
     color: #333;
 }
 
+/* Overall form container spacing */
 form {
     display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
+    align-items: center; /* Vertically aligns elements in the row */
+    justify-content: center; /* Ensures alignment to the left */
+    gap: 15px; /* Adds consistent spacing between elements */
 }
 
 input {
@@ -24,9 +27,11 @@ input {
     margin-right: 10px;
 }
 
+/* Submit button styling */
 button {
-    padding: 10px 20px;
+    padding: 10px 20px; /* Ensures consistent size */
     font-size: 16px;
+    width: auto; /* Prevents resizing based on other elements */
     border: none;
     background-color: #007bff;
     color: white;
@@ -77,3 +82,88 @@ li .delete-button {
 li .delete-button:hover {
     background-color: #c82333;
 }
+
+/* Style for the frequency label and select dropdown */
+label {
+    margin-right: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+select {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    margin-right: 10px;
+    appearance: none; /* Removes the default OS styling */
+}
+
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Ensure consistent font styles across all inputs and labels */
+form * {
+    font-family: Arial, sans-serif;
+}
+
+/* Style for the custom frequency input section */
+#custom-frequency-input {
+    margin-top: 20px; /* Adds space between the custom section and the elements above */
+    padding: 10px; /* Adds some internal space for better readability */
+    border: 1px solid #ddd; /* Optional: gives the custom section a visible boundary */
+    border-radius: 4px; /* Optional: matches the rounded look of other inputs */
+    background-color: #f9f9f9; /* Optional: adds subtle background to distinguish it */
+}
+
+#custom-frequency-input label {
+    font-size: 16px;
+    font-weight: bold;
+    display: block; /* Ensures the label appears above checkboxes */
+    margin-bottom: 8px; /* Adds space between label and checkboxes */
+}
+
+#custom-frequency-input input[type="checkbox"] {
+    margin-right: 8px; /* Adds spacing between checkboxes and labels */
+    margin-bottom: 8px; /* Adds spacing between rows of checkboxes */
+}
+
+#custom-frequency-input input[type="checkbox"]:last-child {
+    margin-bottom: 0; /* Ensures the last checkbox doesn’t have extra spacing */
+}
+
+
+/* Frequency section */
+#frequency-input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    margin-left: 10px; /* Adds spacing between label and dropdown */
+    appearance: none; /* Removes default dropdown styling */
+}
+
+#frequency-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+label[for="frequency-input"] {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* To ensure spacing around the frequency section */
+form > div {
+    margin-bottom: 10px;
+}
+
