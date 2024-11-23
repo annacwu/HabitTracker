@@ -7,25 +7,33 @@
     - Name (e.g., "Exercise")
     - Frequency (e.g., "Twice a week," "Every Monday and Friday")
     - Description (optional)
-- TypeScript Practice: Define a Habit interface that includes a frequency field.
+- TypeScript Practice:
+  - Defined a Habit interface that includes a union frequency field.
+  - Used string literals for predefined frequency options and a custom frequency object for more flexible scheduling.
 - Learning Points: Work with string literals and enums for frequency options, and practice managing optional properties.
 
 ### Completion Tracking:
 
 - Users will track their completion based on the specified frequency. For example, if a user sets a habit to be done "Twice a week," they can mark their completion for those days.
-- TypeScript Practice: Create a method to validate completion based on the selected frequency.
+- TypeScript Practice:
+  - Implemented a method (markAsCompleted) to handle completion tracking with array manipulation to check if the habit has already been completed today, and conditional logic to ensure habits are completed only on allowed days.
 - Learning Points: Use conditional logic and array manipulation to manage completion states.
 
-### Progress Display:
+### Filtering Habits by Completion Status:
 
-- Display how many times the user has completed the habit versus how many times it was supposed to be completed.
-- TypeScript Practice: Create a function that calculates completion rates based on user input for frequency.
-- Learning Points: Use string manipulation and type-safe calculations for displaying progress.
+ - Display habits in two sections:
+   - Needs Completion Today (habits that need to be completed today based on their frequency).
+   - Does Not Need Completion Today (habits that don’t need to be completed today).
+- TypeScript Practice:
+  - Used array filtering to separate habits based on their completion status for the current day.
+- Learning Points: Work with date comparisons and conditional filtering to show relevant habits for today.
 
 ### Local Storage:
 
 - Save habits with their frequencies and completion status, allowing users to return to their data later.
-- TypeScript Practice: Ensure data integrity when saving and retrieving from local storage.
+- TypeScript Practice:
+  - Implemented JSON parsing and stringifying to store and retrieve data from local storage.
+  - Handled nullable types (e.g., optional description field and custom frequency) to ensure the application functions even if some properties are missing.
 - Learning Points: Practice working with JSON and handling nullable types.
 
 *(Chat-gpt generated points)*
