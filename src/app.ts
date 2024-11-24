@@ -21,6 +21,7 @@ const customFrequencyInput = document.getElementById('custom-frequency-input') a
 const habitList = document.getElementById('habit-list') as HTMLUListElement;
 
 habits.forEach(habit => addHabit(habit)); // AFTER the DOM elements so it knows what to reference
+displayHabits(habits, new Date());
 
 frequencyInput.addEventListener('change', () => {
     if (frequencyInput.value === "Custom") {
@@ -68,22 +69,21 @@ habitForm.addEventListener('submit', (event) => {
     habits.push(habit);
     addHabit(habit);
     storeLocally(habits);
+    displayHabits(habits, new Date());
     habitForm.reset();
-    customFrequencyInput.style.display = 'none';
-
-    // const today = new Date();
-    // displayHabits(habits, today);
 });
 
 function addHabit(newHabit: Habit) {
     const li = document.createElement('li'); // makes a new list element in the html
     li.setAttribute('data-habit-name', newHabit.name); // Add data-habit-name to uniquely identify the habit
+    li.setAttribute('data-habit-frequency', JSON.stringify(newHabit.frequency));
+    li.setAttribute('data-habit-completions', newHabit.completions.toString());
 
     const habitText = document.createElement('span');
     let frequencyText = "";
 
     if (isCustomFrequency(newHabit)) {
-        frequencyText = `Custom (${newHabit.frequency.days.join(", ")})`;
+        frequencyText = `${newHabit.frequency.days.join(", ")}`;
     } else {
         frequencyText = newHabit.frequency as Frequency;
     }
@@ -97,7 +97,10 @@ function addHabit(newHabit: Habit) {
     // mark as completed button
     const completeButton = document.createElement('button');
     completeButton.textContent = 'Complete'
-    completeButton.addEventListener('click', () => markAsCompleted(newHabit));
+    completeButton.addEventListener('click', () => {
+        markAsCompleted(newHabit);
+        displayHabits(habits, new Date());
+    });
 
     // delete button
     const deleteButton = document.createElement('button');
@@ -114,6 +117,7 @@ function addHabit(newHabit: Habit) {
 
         // update local storage
         storeLocally(habits);
+        displayHabits(habits, new Date());
     });
 
     const buttonGroup = document.createElement('div');
@@ -124,7 +128,12 @@ function addHabit(newHabit: Habit) {
     
     li.appendChild(habitText);
     li.appendChild(buttonGroup);
-    habitList.appendChild(li);
+    // habitList.appendChild(li);
+
+    const allHabits = document.getElementById('habit-list');
+    if (allHabits) {
+        allHabits.appendChild(li);
+    }
 }
 
 // add a typeguard to make sure if statement in markascompleted works
@@ -148,6 +157,7 @@ function markAsCompleted(habit: Habit) {
         habit.completionDates.push(today);
         habit.completions++;
         storeLocally(habits);
+        displayHabits(habits, new Date());
 
         const habitItem = document.querySelector(`li[data-habit-name="${habit.name}"]`);
         if (habitItem) {
@@ -162,60 +172,96 @@ function markAsCompleted(habit: Habit) {
     } else {
         alert(`You've already completed ${habit.name} today.`);
     }
-
-    // const todayDisplay = new Date();
-    // displayHabits(habits, todayDisplay);
 }
 
 function needsCompletionToday(habit: Habit, today: Date): boolean {
     const todayISO = today.toISOString().split('T')[0];
+    const todayDay = today.toLocaleString('en-US', { weekday: 'long' });
     const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
-    if (habit.frequency === "Daily") {
+    if (habit.frequency === "Daily") { 
         return !habit.completionDates.includes(todayISO);
     } else if (habit.frequency === "Weekly") {
-        const lastDay = 6; // last day is saturday
-        if (dayOfWeek === lastDay) {
-            const weekCompleted = habit.completionDates.some(date => {
-                const dateObj = new Date(date);
-                return dateObj.getDay() !== dayOfWeek; // Exclude today from being counted
-            });
-            return !weekCompleted && !habit.completionDates.includes(todayISO);
+        if (dayOfWeek === 6) {
+            return isCompletedThisWeek(habit, today) === 0;
         }
-    } 
+    } else if (habit.frequency === "Twice a Week") {
+        const completionsSoFar = isCompletedThisWeek(habit, today);
+        if (dayOfWeek === 5) { // if it is the last day of week and it hasn't been completed yet, it needs to be completed
+            return completionsSoFar < 1;
+        }
+        if (dayOfWeek === 6) { // if it is the last day of week and it has only been completed once, it needs to be completed
+            return completionsSoFar < 2 && !habit.completionDates.includes(todayISO);
+        }
+    } else if (isCustomFrequency(habit)) {
+        if (habit.frequency.days.includes(todayDay)) {
+            return !habit.completionDates.includes(todayISO);
+        }
+    }
 
-    return true;
+    return false;
 }
 
 function filterHabits(habits: Habit[], today: Date) {
     const needsCompletion = habits.filter(habit => needsCompletionToday(habit, today));
-    const doesNotNeedCompletion = habits.filter(habit => !needsCompletionToday(habit, today));
+    const doesNotNeedCompletion = habits.filter(habit => !needsCompletion.includes(habit));
+
+    habits.forEach(habit => {
+        console.log(`Habit: ${habit.name}, Needs Completion: ${needsCompletionToday(habit, today)}`);
+    });
 
     return {needsCompletion, doesNotNeedCompletion}; // return in form of an object
 }
 
-// function displayHabits(habits: Habit[], today: Date) {
-//     const {needsCompletion, doesNotNeedCompletion} = filterHabits(habits, today);
+function displayHabits(habits: Habit[], today: Date) {
+    const {needsCompletion, doesNotNeedCompletion} = filterHabits(habits, today);
 
-//     const needsCompletionList = document.getElementById("needs-completion-list")!;
-//     const doesNotNeedCompletionList = document.getElementById("does-not-need-completion-list")!;
-//     needsCompletionList.innerHTML = '';
-//     doesNotNeedCompletionList.innerHTML = '';
+    const needsCompletionList = document.getElementById("needs-completion-list")!;
+    const doesNotNeedCompletionList = document.getElementById("does-not-need-completion-list")!;
+    const allHabits = document.getElementById('all-habits') as HTMLElement;
+    const completedMessage = document.getElementById('completed-message') as HTMLElement;
 
-//     needsCompletion.forEach(habit => {
-//         const listItem = document.createElement("li");
-//         listItem.textContent = habit.name;
-//         needsCompletionList.appendChild(listItem);
-//     });
+    if (needsCompletion.length === 0) {
+        completedMessage.style.display = "block"; // Show custom frequency options
+    } else {
+        completedMessage.style.display = "none"; // Hide custom frequency options
+    }
 
-//     doesNotNeedCompletion.forEach(habit => {
-//         const listItem = document.createElement("li");
-//         listItem.textContent = habit.name;
-//         doesNotNeedCompletionList.appendChild(listItem);
-//     });
+    needsCompletion.forEach(habit => {
+        const listItem = allHabits.querySelector(`li[data-habit-name="${habit.name}"]`);
+        console.log(`Moving ${habit.name} from does to ${listItem?.parentElement === needsCompletionList ? 'Needs Completion' : 'Does Not Need Completion'}`);
+        if (listItem && listItem.parentElement !== needsCompletionList) {
+            needsCompletionList.appendChild(listItem);
+        }
+    });
 
-// }
+    doesNotNeedCompletion.forEach(habit => {
+        const listItem = allHabits.querySelector(`li[data-habit-name="${habit.name}"]`);
+        console.log(`Moving ${habit.name} from doesnot to ${listItem?.parentElement === needsCompletionList ? 'Needs Completion' : 'Does Not Need Completion'}`);
+        if (listItem && listItem.parentElement !== doesNotNeedCompletionList) {
+            doesNotNeedCompletionList.appendChild(listItem);
+        }
+    });
 
+}
+
+function isCompletedThisWeek(habit: Habit, today: Date) {
+    const weekStart = new Date(today); // start with date in YYYY-MM-DD
+    weekStart.setDate(today.getDate() - today.getDay()); // set to the beginning of the week 
+
+    const weekEnd = new Date(today); 
+    weekEnd.setDate(today.getDate() + (6 - today.getDay())); // set to end of the week
+
+    const weekCompleted = habit.completionDates.filter(date => {
+        const dateObj = new Date(date); // turn today's date into the YYYY-MM-DD format
+
+        // check if the date is within this week and not today
+        return (
+            dateObj >= weekStart && dateObj <= weekEnd && dateObj.getDay() !== today.getDay()
+        );
+    });
+    return weekCompleted.length;
+}
 
 // save habits to local storage
 function storeLocally(habits: Habit[]) {
