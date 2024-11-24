@@ -25,9 +25,9 @@ displayHabits(habits, new Date());
 
 frequencyInput.addEventListener('change', () => {
     if (frequencyInput.value === "Custom") {
-        customFrequencyInput.style.display = "block"; // Show custom frequency options
+        customFrequencyInput.style.display = "block"; // Show
     } else {
-        customFrequencyInput.style.display = "none"; // Hide custom frequency options
+        customFrequencyInput.style.display = "none"; // Hide
     }
 });
 
@@ -75,7 +75,7 @@ habitForm.addEventListener('submit', (event) => {
 
 function addHabit(newHabit: Habit) {
     const li = document.createElement('li'); // makes a new list element in the html
-    li.setAttribute('data-habit-name', newHabit.name); // Add data-habit-name to uniquely identify the habit
+    li.setAttribute('data-habit-name', newHabit.name); 
     li.setAttribute('data-habit-frequency', JSON.stringify(newHabit.frequency));
     li.setAttribute('data-habit-completions', newHabit.completions.toString());
 
@@ -104,7 +104,7 @@ function addHabit(newHabit: Habit) {
 
     // delete button
     const deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-button'; // NOTE: MAKE DELETE ARCHIVE
+    deleteButton.className = 'delete-button';
     deleteButton.textContent = 'Delete';
     deleteButton.addEventListener('click', () => {
         li.remove();
@@ -115,7 +115,6 @@ function addHabit(newHabit: Habit) {
             habits.splice(index, 1); // splice removes or adds elements based on parameters
         }
 
-        // update local storage
         storeLocally(habits);
         displayHabits(habits, new Date());
     });
@@ -128,7 +127,6 @@ function addHabit(newHabit: Habit) {
     
     li.appendChild(habitText);
     li.appendChild(buttonGroup);
-    // habitList.appendChild(li);
 
     const allHabits = document.getElementById('habit-list');
     if (allHabits) {
@@ -206,10 +204,6 @@ function filterHabits(habits: Habit[], today: Date) {
     const needsCompletion = habits.filter(habit => needsCompletionToday(habit, today));
     const doesNotNeedCompletion = habits.filter(habit => !needsCompletion.includes(habit));
 
-    habits.forEach(habit => {
-        console.log(`Habit: ${habit.name}, Needs Completion: ${needsCompletionToday(habit, today)}`);
-    });
-
     return {needsCompletion, doesNotNeedCompletion}; // return in form of an object
 }
 
@@ -222,14 +216,13 @@ function displayHabits(habits: Habit[], today: Date) {
     const completedMessage = document.getElementById('completed-message') as HTMLElement;
 
     if (needsCompletion.length === 0) {
-        completedMessage.style.display = "block"; // Show custom frequency options
+        completedMessage.style.display = "block";
     } else {
-        completedMessage.style.display = "none"; // Hide custom frequency options
+        completedMessage.style.display = "none";
     }
 
     needsCompletion.forEach(habit => {
         const listItem = allHabits.querySelector(`li[data-habit-name="${habit.name}"]`);
-        console.log(`Moving ${habit.name} from does to ${listItem?.parentElement === needsCompletionList ? 'Needs Completion' : 'Does Not Need Completion'}`);
         if (listItem && listItem.parentElement !== needsCompletionList) {
             needsCompletionList.appendChild(listItem);
         }
@@ -237,7 +230,6 @@ function displayHabits(habits: Habit[], today: Date) {
 
     doesNotNeedCompletion.forEach(habit => {
         const listItem = allHabits.querySelector(`li[data-habit-name="${habit.name}"]`);
-        console.log(`Moving ${habit.name} from doesnot to ${listItem?.parentElement === needsCompletionList ? 'Needs Completion' : 'Does Not Need Completion'}`);
         if (listItem && listItem.parentElement !== doesNotNeedCompletionList) {
             doesNotNeedCompletionList.appendChild(listItem);
         }
