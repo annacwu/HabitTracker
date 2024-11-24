@@ -70,6 +70,9 @@ habitForm.addEventListener('submit', (event) => {
     storeLocally(habits);
     habitForm.reset();
     customFrequencyInput.style.display = 'none';
+
+    // const today = new Date();
+    // displayHabits(habits, today);
 });
 
 function addHabit(newHabit: Habit) {
@@ -86,6 +89,7 @@ function addHabit(newHabit: Habit) {
     }
     habitText.textContent = `${newHabit.name} (${frequencyText})`;
 
+    // completed text info
     const completionText = document.createElement('span');
     completionText.className = 'completion-text';
     completionText.textContent = `Completed: ${newHabit.completions}`;
@@ -95,8 +99,9 @@ function addHabit(newHabit: Habit) {
     completeButton.textContent = 'Complete'
     completeButton.addEventListener('click', () => markAsCompleted(newHabit));
 
+    // delete button
     const deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-button';
+    deleteButton.className = 'delete-button'; // NOTE: MAKE DELETE ARCHIVE
     deleteButton.textContent = 'Delete';
     deleteButton.addEventListener('click', () => {
         li.remove();
@@ -110,11 +115,15 @@ function addHabit(newHabit: Habit) {
         // update local storage
         storeLocally(habits);
     });
+
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = 'button-group';
+    buttonGroup.appendChild(completionText);
+    buttonGroup.appendChild(completeButton);
+    buttonGroup.appendChild(deleteButton);
     
     li.appendChild(habitText);
-    li.appendChild(completionText);
-    li.appendChild(completeButton);
-    li.appendChild(deleteButton);
+    li.appendChild(buttonGroup);
     habitList.appendChild(li);
 }
 
@@ -153,7 +162,60 @@ function markAsCompleted(habit: Habit) {
     } else {
         alert(`You've already completed ${habit.name} today.`);
     }
+
+    // const todayDisplay = new Date();
+    // displayHabits(habits, todayDisplay);
 }
+
+function needsCompletionToday(habit: Habit, today: Date): boolean {
+    const todayISO = today.toISOString().split('T')[0];
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+    if (habit.frequency === "Daily") {
+        return !habit.completionDates.includes(todayISO);
+    } else if (habit.frequency === "Weekly") {
+        const lastDay = 6; // last day is saturday
+        if (dayOfWeek === lastDay) {
+            const weekCompleted = habit.completionDates.some(date => {
+                const dateObj = new Date(date);
+                return dateObj.getDay() !== dayOfWeek; // Exclude today from being counted
+            });
+            return !weekCompleted && !habit.completionDates.includes(todayISO);
+        }
+    } 
+
+    return true;
+}
+
+function filterHabits(habits: Habit[], today: Date) {
+    const needsCompletion = habits.filter(habit => needsCompletionToday(habit, today));
+    const doesNotNeedCompletion = habits.filter(habit => !needsCompletionToday(habit, today));
+
+    return {needsCompletion, doesNotNeedCompletion}; // return in form of an object
+}
+
+// function displayHabits(habits: Habit[], today: Date) {
+//     const {needsCompletion, doesNotNeedCompletion} = filterHabits(habits, today);
+
+//     const needsCompletionList = document.getElementById("needs-completion-list")!;
+//     const doesNotNeedCompletionList = document.getElementById("does-not-need-completion-list")!;
+//     needsCompletionList.innerHTML = '';
+//     doesNotNeedCompletionList.innerHTML = '';
+
+//     needsCompletion.forEach(habit => {
+//         const listItem = document.createElement("li");
+//         listItem.textContent = habit.name;
+//         needsCompletionList.appendChild(listItem);
+//     });
+
+//     doesNotNeedCompletion.forEach(habit => {
+//         const listItem = document.createElement("li");
+//         listItem.textContent = habit.name;
+//         doesNotNeedCompletionList.appendChild(listItem);
+//     });
+
+// }
+
 
 // save habits to local storage
 function storeLocally(habits: Habit[]) {
