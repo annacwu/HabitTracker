@@ -1,12 +1,12 @@
-type Frequency = "Daily" | "Weekly" | "Twice a Week" | "Custom"; // literal type best here? unknown
+type FrequencyLiteral = "Daily" | "Weekly" | "Twice a Week" | "Custom"; // literal type best here? unknown
 
 interface CustomFrequency {
     days: string[]; 
 }
 
-interface Habit {
+type Habit<Freq = Frequency> = {
     name: string;
-    frequency: Frequency | CustomFrequency; // this ended up making some things weird later on, maybe better ways to approach this
+    frequency: Freq; // this ended up making some things weird later on, maybe better ways to approach this
     completions: number;
     completionDates: string[];
 }
@@ -135,7 +135,7 @@ function addHabit(newHabit: Habit) {
 }
 
 // add a typeguard to make sure if statement in markascompleted works
-function isCustomFrequency(habit: Habit): habit is Habit & { frequency: CustomFrequency } {
+function isCustomFrequency(habit: Habit): habit is Habit<CustomFrequency> {
     return typeof habit.frequency === "object" && "days" in habit.frequency;
 }
 
